@@ -1,0 +1,91 @@
+{% extends "history.html" %}
+{% load custom_filters %}
+
+{% block history_content %}
+    <div class="container-fluid p-4">
+        <!-- 会话头 -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3>会话详情：{{ session.session_id }}</h3>
+            <small class="text-muted">最后更新：{{ session.updated_at|date:"Y-m-d H:i" }}</small>
+        </div>
+
+        <div class="row g-4">
+            <!-- SOAP记录 -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <a href="{% url 'doctor_note' session_id=session.session_id %}" class="text-decoration-none">
+                        <div class="card-header bg-primary text-white">
+                            <i class="bi bi-file-medical me-2"></i>SOAP 病历记录
+                        </div>
+                    </a>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <h5 class="text-primary">初步诊断</h5>
+                            <div class="markdown-body">
+                                {{ soap_note.initial|markdown }}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="text-primary">SOAP记录</h5>
+                            <div class="markdown-body">
+                                {{ soap_note.soap|markdown }}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="text-primary">最终记录</h5>
+                            <div class="markdown-body">
+                                {{ soap_note.final|markdown }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 患者报告 -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <a href="{% url 'report_generate' session_id=session.session_id %}" class="text-decoration-none">
+                        <div class="card-header bg-success text-white">
+                            <i class="bi bi-file-earmark-text me-2"></i>患者报告
+                        </div>
+                    </a>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <h5 class="text-success">简明报告</h5>
+                            <div class="markdown-body">
+                                {{ report.concise|markdown }}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="text-success">最终报告</h5>
+                            <div class="markdown-body">
+                                {{ report.final|markdown }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .markdown-body {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+
+        .card {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+{% endblock %}

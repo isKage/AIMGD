@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 左侧会话列表 -->
+            <div class="col-md-2 bg-light vh-100 overflow-auto">
+                <div class="p-3">
+                    <h4 class="mb-3">历史会话</h4>
+                    <div class="list-group">
+                        {% for session in sessions %}
+                            <a href="{% url 'history_detail' session_id=session.session_id %}"
+                               class="list-group-item list-group-item-action {% if session.session_id == current_id %}active{% endif %}">
+                                {{ session.session_id|truncatechars:12 }}
+                                <small class="d-block text-muted">{{ session.updated_at|date:"Y-m-d H:i" }}</small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧内容区域 -->
+            <div class="col-md-10">
+                {% block history_content %}
+                    <div class="p-5 text-center text-muted">
+                        <h5>请从左侧选择会话查看详情</h5>
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

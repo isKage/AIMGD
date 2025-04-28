@@ -1,0 +1,27 @@
+# pycharm
+.idea/
+.DS_Store
+*/DS_Store
+
+__pycache__/
+*/__pycache__/
+*.py[cod]
+*$py.class
+
+# Django stuff:
+*/local_settings.py
+local_settings.py
+*.sqlite3
+
+# database migrations
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# draft
+scripts/
+
+# data not useful
+data/diseases_name.txt
+data/get_prob_processed.txt
+data/get_prob.txt
+data/relation_disease_symptom.csv
