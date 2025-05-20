@@ -1,5 +1,11 @@
 {% extends "history.html" %}
+
 {% load custom_filters %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/history_qa.css' %}">
+{% endblock %}
 
 {% block history_content %}
     <div class="container-fluid p-4">
@@ -9,6 +15,37 @@
             <small class="text-muted">最后更新：{{ session.updated_at|date:"Y-m-d H:i" }}</small>
         </div>
 
+        <!-- 问诊对话 -->
+        <div style="text-align: right; margin-bottom: 10px;">
+            <button onclick="toggleChatHistory()" class="btn btn-xs btn-default"
+                    style="background-color: lightgray; padding: 2px 8px; font-size: 15px;">
+                显示/隐藏记录
+            </button>
+        </div>
+        <div id="chat-history" style="display: none; height: 500px">
+            {% for patient_msg, ai_msg in session.patient_response|zip:session.ai_response %}
+                <div class="message-container">
+                    {% if ai_msg %}
+                        <div class="chat-bubble ai">
+                            <div class="message-content">
+                                <i class="bi bi-robot fs-5 me-2"></i>
+                                <div class="text">{{ ai_msg }}</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if patient_msg %}
+                        <div class="chat-bubble patient">
+                            <div class="message-content">
+                                <div class="text">{{ patient_msg }}</div>
+                                <i class="bi bi-person fs-5 ms-2"></i>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- note and report -->
         <div class="row g-4">
             <!-- SOAP记录 -->
             <div class="col-md-6">
@@ -52,15 +89,15 @@
                         </div>
                     </a>
                     <div class="card-body">
-                        <div class="mb-4">
-                            <h5 class="text-success">简明报告</h5>
-                            <div class="markdown-body">
-                                {{ report.concise|markdown }}
-                            </div>
-                        </div>
+                        {#                        <div class="mb-4">#}
+                        {#                            <h5 class="text-success">简明报告</h5>#}
+                        {#                            <div class="markdown-body">#}
+                        {#                                {{ report.concise|markdown }}#}
+                        {#                            </div>#}
+                        {#                        </div>#}
 
                         <div class="mb-4">
-                            <h5 class="text-success">最终报告</h5>
+                            <h5 class="text-success">报告</h5>
                             <div class="markdown-body">
                                 {{ report.final|markdown }}
                             </div>
@@ -71,21 +108,18 @@
         </div>
     </div>
 
-    <style>
-        .markdown-body {
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 4px;
-            border: 1px solid #dee2e6;
-        }
 
-        .card {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            transition: transform 0.2s;
-        }
+{% endblock %}
 
-        .card:hover {
-            transform: translateY(-2px);
+{% block extra_js %}
+    <script>
+        function toggleChatHistory() {
+            const chatHistory = document.getElementById('chat-history');
+            if (chatHistory.style.display === 'none') {
+                chatHistory.style.display = 'block';
+            } else {
+                chatHistory.style.display = 'none';
+            }
         }
-    </style>
+    </script>
 {% endblock %}

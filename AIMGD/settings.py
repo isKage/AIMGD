@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -121,6 +122,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 """
 ================================================= 自定义 =================================================
 """
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # 指向项目根目录下的 static 文件夹
+]
+
 # AI API 配置
 API_KEY = "<API_KEY>"
 BASE_URL = "<BASE_URL>"

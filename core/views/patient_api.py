@@ -81,7 +81,7 @@ def patient_chat(request, session_id):
             # return JsonResponse({'session': session})
 
         if pim_service.should_stop(session_id=session_id):
-            return redirect('doctor_note', session_id=session_id)
+            return redirect('report_generate', session_id=session_id)
 
     # GET请求显示聊天页面
     return render(request, 'chat.html', {'session': session})

@@ -66,17 +66,17 @@
 
     {% if generated %}
         <!-- 已生成内容 -->
-        <div class="card mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span>初步报告</span>
-                <button class="btn btn-sm btn-outline-primary" onclick="regenerate('concise')">重新生成</button>
-            </div>
-            <div class="markdown-body" id="concise-content">{{ report.concise|markdown }}</div>
-        </div>
+{#        <div class="card mb-3">#}
+{#            <div class="card-header d-flex justify-content-between align-items-center">#}
+{#                <span>初步报告</span>#}
+{#                <button class="btn btn-sm btn-outline-primary" onclick="regenerate('concise')">重新生成</button>#}
+{#            </div>#}
+{#            <div class="markdown-body" id="concise-content">{{ report.concise|markdown }}</div>#}
+{#        </div>#}
 
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span>最终报告</span>
+                <span>报告</span>
                 <button class="btn btn-sm btn-outline-primary" onclick="regenerate('final')">重新生成</button>
             </div>
             <div class="markdown-body" id="final-content">{{ report.final|markdown }}</div>
@@ -84,15 +84,14 @@
     {% else %}
         <!-- 分步生成按钮 -->
         <div class="step-buttons">
-            <button class="btn btn-primary btn-lg mx-2" id="btn-concise"
-                    {% if report.concise %}disabled{% endif %}
-                    onclick="generateStep('concise')">
-                生成初步报告
-            </button>
+{#            <button class="btn btn-primary btn-lg mx-2" id="btn-concise"#}
+{#                    {% if report.concise %}disabled{% endif %}#}
+{#                    onclick="generateStep('concise')">#}
+{#                生成初步报告#}
+{#            </button>#}
             <button class="btn btn-primary btn-lg mx-2" id="btn-final"
-                    {% if not report.concise %}disabled{% endif %}
                     onclick="generateStep('final')">
-                生成最终报告
+                生成报告
             </button>
         </div>
 

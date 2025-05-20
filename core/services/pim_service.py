@@ -19,20 +19,20 @@ class PIMService:
     def _call_ai_get_diseases(self, text: str) -> List[str]:
         """调用 AI 获取初始疾病列表"""
         ai = AIGenerator()
-        prompt = f"列出疾病：根据患者描述【{text}】，列出最可能的几种疾病名称（JSON格式），不可超过 10 种"
-        response = ai.generate_json_response(prompt, key="diseases")
+        # prompt = f"列出疾病：根据患者描述【{text}】，列出最可能的几种疾病名称（JSON格式），不可超过 10 种"
+        response = ai.generate_json_response(text, key="diseases")
         return response["diseases"]
 
     def _call_ai_generate_question(self, symptom: str, diseases: Dict[str, float]) -> str:
         """调用 AI 生成症状询问问题"""
         ai = AIGenerator()
         d_name = "、".join(list(diseases.keys()))
-        prompt = (
-            "直接生成问题，不要生成其他多余的语句：\n"
-            f"针对相关疾病【{d_name}】，将症状【{symptom}】转化为患者能理解的口语化问题（与这些疾病要紧密相关）。"
-            f"询问患者是否有出现【{symptom}】相关的症状。"
-        )
-        return ai.generate_text_response(prompt)
+        # prompt = (
+        #     "直接生成问题，不要生成其他多余的语句：\n"
+        #     f"针对相关疾病【{d_name}】，将症状【{symptom}】转化为患者能理解的口语化问题（与这些疾病要紧密相关）。"
+        #     f"询问患者是否有出现【{symptom}】相关的症状。"
+        # )
+        return ai.generate_text_response(d_name, symptom)
 
     def _call_ai_yes_or_no(self, text: str, symptom: str, question: str) -> Dict[str, bool]:
         """
@@ -40,8 +40,8 @@ class PIMService:
         :return {'Symptom': True}
         """
         ai = AIGenerator()
-        prompt = f"针对问题【{question}】分析患者的回答【{text}】，提取病状【{symptom}】是否出现，是: 则 'True' 否: 则 'False'"
-        is_symptom = ai.generate_bool_response(prompt, key=symptom)
+        # prompt = f"针对问题【{question}】分析患者的回答【{text}】，提取病状【{symptom}】是否出现，是: 则 'True' 否: 则 'False'"
+        is_symptom = ai.generate_bool_response(question, text, symptom, key=symptom)
         return {k: bool(is_symptom[k]) for k in is_symptom}
 
     # ====================== 核心功能 ======================
@@ -92,10 +92,7 @@ class PIMService:
         return session_data
 
     def generate_question(self, IEG: Dict[str, float], diseases: Dict[str, float]) -> str:
-        symptom_opt = max(IEG)
-        for k in IEG:
-            if IEG[k] > IEG[symptom_opt]:
-                symptom_opt = k
+        symptom_opt = max(IEG, key=IEG.get)
         return self._call_ai_generate_question(symptom=symptom_opt, diseases=diseases)
 
     def is_symptom_occurrence(self, patient_ans: str, symptom: str, question: str) -> Dict[str, bool]:
@@ -114,7 +111,7 @@ class PIMService:
         if len(ieg) >= self.N_limit:
             return True
 
-        # 2. IEG收敛 (最后两个症状的 IEG 变化小于阈值)
+        # 2. IEG 收敛 (最后两个症状的 IEG 变化小于阈值)
         if len(ieg) >= 3:
             last = max(ieg[-1].values())
             mid = max(ieg[-2].values())

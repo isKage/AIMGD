@@ -1,9 +1,13 @@
-{% load custom_filters %}
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>问诊对话</title>
+{% load custom_filters %}
+{% load static %}
+
+{% block title %}问诊对话 - AI问诊系统{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/chat.css' %}">
+    <link rel="stylesheet" href="{% static 'css/history_qa.css' %}">
     <style>
         .chat-container {
             max-width: 800px;
@@ -28,30 +32,42 @@
             margin-right: auto;
         }
     </style>
-</head>
-<body>
-<div class="chat-container">
-    <h2>问诊对话 ID: {{ session.session_id }}</h2>
+{% endblock %}
 
-    <div id="chat-history">
-        {% for patient_msg, ai_msg in session.patient_response|zip:session.ai_response %}
-            {% if patient_msg %}
-                <div class="chat-bubble patient">患者: {{ patient_msg }}</div>
-            {% endif %}
-            {% if ai_msg %}
-                <div class="chat-bubble ai">AI医生: {{ ai_msg }}</div>
-            {% endif %}
-        {% endfor %}
+{% block content %}
+    <div class="chat-container">
+        <h2>问诊对话 ID: {{ session.session_id }}</h2>
+
+        <div id="chat-history" style="height: 500px">
+            {% for patient_msg, ai_msg in session.patient_response|zip:session.ai_response %}
+                {% if patient_msg %}
+                    <div class="chat-bubble patient">
+                        <div class="message-content">
+                            <div class="text">{{ patient_msg }}</div>
+                            <i class="bi bi-person fs-5 ms-2"></i>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if ai_msg %}
+                    <div class="chat-bubble ai">
+                        <div class="message-content">
+                            <i class="bi bi-robot fs-5 me-2"></i>
+                            <div class="text">{{ ai_msg }}</div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <form method="post" class="input-group">
+            {% csrf_token %}
+            <input type="text" name="patient_input"
+                   placeholder="请输入您的症状描述"
+                   style="width: 70%; padding: 10px;"
+                   autocomplete="off"
+                   class="form-control">
+            <button class="form-control" type="submit" style="background-color: #1132e4; color: white">发送</button>
+        </form>
+
     </div>
-
-    <form method="post" style="margin-top: 20px;">
-        {% csrf_token %}
-        <input type="text" name="patient_input"
-               placeholder="请输入您的症状描述"
-               style="width: 70%; padding: 10px;"
-               autocomplete="off">
-        <button type="submit" style="padding: 10px 20px;">发送</button>
-    </form>
-</div>
-</body>
-</html>
+{% endblock %}

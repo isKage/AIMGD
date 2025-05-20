@@ -8,7 +8,9 @@ class PSGService:
     def __init__(self, session: DiagnosisSession):
         self.session = session
         self.session_id = session.session_id
-        self.disease_name = PSGReport.objects.get(session_id=self.session_id).disease_name
+        # self.disease_name = PSGReport.objects.get(session_id=self.session_id).disease_name
+        disease_dict = session.diseases[-1]
+        self.disease_name = max(disease_dict, key=disease_dict.get)
         self.ai = AIGenerator()
         self.kg = KnowledgeGraph()
 
@@ -22,7 +24,8 @@ class PSGService:
 
         info_dict = {
             'disease_name': self.disease_name,
-            'concise': PSGReport.objects.get(session_id=self.session_id).concise,
+            'qa': self._qa(),
+            # 'concise': PSGReport.objects.get(session_id=self.session_id).concise,
             'addition': additional_info
         }
         return self.ai.generate_report(info_dict=info_dict)

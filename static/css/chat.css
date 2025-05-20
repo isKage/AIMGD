@@ -1,0 +1,22 @@
+.chat-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.chat-bubble {
+    padding: 10px;
+    margin: 10px;
+    border-radius: 10px;
+    max-width: 70%;
+}
+
+.patient {
+    background: #e3f2fd;
+    margin-left: auto;
+}
+
+.ai {
+    background: #f5f5f5;
+    margin-right: auto;
+}

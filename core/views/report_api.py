@@ -7,10 +7,12 @@ from core.services import PSGService
 
 def report_generate(request, session_id):
     session = get_object_or_404(DiagnosisSession, session_id=session_id)
-    note = get_object_or_404(SOAPNote, session_id=session_id)
+    disease_dict = session.diseases[-1]
+    disease_name = max(disease_dict, key=disease_dict.get)
+    # note = get_object_or_404(SOAPNote, session_id=session_id)  # 获取 SOAP
     report, created = PSGReport.objects.get_or_create(
         session=session,
-        defaults={'concise': '', 'final': '', 'disease_name': note.disease_name}
+        defaults={'concise': '', 'final': '', 'disease_name': disease_name}
     )
 
     if request.method == "POST":
@@ -19,7 +21,8 @@ def report_generate(request, session_id):
 
         if step == 'concise':
             # 1. 初次生成易懂报告
-            report.concise = psg_service.generate_concise()
+            # report.concise = psg_service.generate_concise()
+            pass
         elif step == 'final':
             # 2. 最终
             report.final = psg_service.generate_final()
@@ -29,7 +32,7 @@ def report_generate(request, session_id):
     context = {
         'session_id': session_id,
         'report': report,
-        'generated': any([report.concise, report.final])
+        'generated': any(report.final)
     }
 
     return render(request, 'report.html', context)

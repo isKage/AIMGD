@@ -18,36 +18,41 @@ class AIGenerator:
             self.prompt = json.load(f)
 
     # =============== PIM 生成问题、获取是否、返回 json 格式化 ===============
-    def generate_json_response(self, prompt: str, key: str) -> dict:
+    def generate_json_response(self, text: str, key: str) -> dict:
         """生成结构化 JSON 响应（用于疾病列表提取）"""
+        prompt_pim = self.prompt['pim']
         response = self.client.chat.completions.create(
             model=settings.MODEL,
             messages=[
-                {"role": "system", "content": f"输出JSON，键值为 {key}"},
-                {"role": "user", "content": prompt}
+                {"role": "system", "content": prompt_pim['system'] + f"要求：输出JSON，键值为 {key}"},
+                {"role": "user", "content": prompt_pim['guess_diseases'].format(text=text)}
             ],
             response_format={"type": "json_object"}
         )
         return json.loads(response.choices[0].message.content)
 
-    def generate_text_response(self, prompt: str) -> str:
+    def generate_text_response(self, d_name: str, symptom: str) -> str:
         """生成自然语言文本（用于问题生成）"""
+        prompt_pim = self.prompt['pim']
         response = self.client.chat.completions.create(
             model=settings.MODEL,
             messages=[
-                {"role": "system", "content": "你是一位知识全面的医生，能够将专业化的术语解构成患者能理解的口语化表达。"},
-                {"role": "user", "content": prompt}
+                {"role": "system", "content": prompt_pim['system']},
+                {"role": "user", "content": prompt_pim['generate_question'].format(d_name=d_name, symptom=symptom)}
             ],
         )
         return response.choices[0].message.content
 
-    def generate_bool_response(self, prompt: str, key: str) -> dict:
+    def generate_bool_response(self, question: str, text: str, symptom: str, key: str) -> dict:
         """分析是否，返回 {'S': 'True'}"""
+        prompt_pim = self.prompt['pim']
         response = self.client.chat.completions.create(
             model=settings.MODEL,
             messages=[
-                {"role": "system", "content": f"输出JSON，键为 '{key}'，值只能为 'True' 或 'False' 的布尔类型"},
-                {"role": "user", "content": prompt}
+                {"role": "system",
+                 "content": prompt_pim['system'] + f"输出JSON，键为 '{key}'，值只能为 'True' 或 'False' 的布尔类型"},
+                {"role": "user",
+                 "content": prompt_pim['yes_or_no'].format(question=question, text=text, symptom=symptom)}
             ],
             response_format={"type": "json_object"}
         )
@@ -125,31 +130,36 @@ class AIGenerator:
 
     # =============== PSG 生成患者报告 ===============
     def generate_report(self, info_dict: dict) -> str:
-        prompt = self.prompt['psg']
-        additional_info = info_dict.get('addition', False)
-        if not additional_info:
-            # 首次生成简洁报告
-            final_prompt = (
-                f"{prompt['concise']}\n"
-                f"疾病: {info_dict['disease_name']}\n"
-                f"SOAP 格式的临床记录': {info_dict['soap']}\n"
-                f"问诊对话内容': {info_dict['qa']}"
-            )
-        else:
-            # 最终报告
-            final_prompt = (
-                f"{prompt['supplementary']}\n"
-                f"疾病: {info_dict['disease_name']}\n"
-                f"已有的转述内容: {info_dict['concise']}\n"
-                f"补充信息: {additional_info}"
-            )
+        prompt = self.prompt['psg_new']
+        # additional_info = info_dict.get('addition', False)
+        # if not additional_info:
+        #     # 首次生成简洁报告
+        #     final_prompt = (
+        #         f"{prompt['concise']}\n"
+        #         f"疾病: {info_dict['disease_name']}\n"
+        #         f"SOAP 格式的临床记录': {info_dict['soap']}\n"
+        #         f"问诊对话内容': {info_dict['qa']}"
+        #     )
+        # else:
+        #     # 最终报告
+        #     final_prompt = (
+        #         f"{prompt['supplementary']}\n"
+        #         f"疾病: {info_dict['disease_name']}\n"
+        #         f"已有的转述内容: {info_dict['concise']}\n"
+        #         f"补充信息: {additional_info}"
+        #     )
+        prompt_content = (
+            f"{prompt['content'].format(disease_name=info_dict['disease_name'])}"
+            f"有关疾病的补充信息: {info_dict['addition']}\n"
+            f"问诊对话内容: {info_dict['qa']}\n"
+        )
 
         # ai 生成
         response = self.client.chat.completions.create(
             model=settings.MODEL,
             messages=[
                 {"role": "system", "content": prompt['system']},
-                {"role": "user", "content": final_prompt}
+                {"role": "user", "content": prompt_content}
             ],
         )
         return response.choices[0].message.content
